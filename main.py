@@ -11,8 +11,24 @@ for i in range(len(built_keys)):
 BINARY_TEXT = "110111001011101111000100110101011110011011110111110000100011001010011101001010110110101111100011001110" \
               "1011011111"
 
-print("rondes :", const_des.rondes(BINARY_TEXT))
+# a retirer
+print("BINARY_TEXT : " + BINARY_TEXT)
+# fin a retirer
 
-print(const_des.mat_zero(3, 4))
+packed_message = const_des.split(BINARY_TEXT, 64)
 
-print(const_des.fit_in_matrice("123456789012123456789012123456789012123456789012", 4, 12))
+# a retirer
+print("message après paquetage")
+for i in range(len(packed_message)):
+    print(str(i) + " : " + packed_message[i])
+# fin a retirer
+
+permuted_message = const_des.initial_permutation(packed_message)
+
+# a retirer
+print("message après permutation initiale")
+for i in range(len(permuted_message)):
+    print(str(i) + " : " + permuted_message[i])
+# fin a retirer
+
+const_des.rondes(permuted_message, built_keys)

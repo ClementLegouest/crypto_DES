@@ -12,6 +12,7 @@ import re
 
 
 # create 2D array filled with zero characters
+# x lines of y
 def mat_zero(y, x):
 
     matrice = []
@@ -39,7 +40,34 @@ def fit_in_matrice(string, y, x):
     return matrice
 
 
-# buid 16 keys from one binary key
+# concatenation de tableau
+def concat(array):
+
+    result = ""
+    for i in array:
+        result += str(array[i])
+
+    return result
+
+
+# Le shérif de l'espace
+def xor(one, two):
+    if len(one) != len(two):
+        return -1
+
+    result = []
+
+    for i in range(len(one)):
+        if (one == 0 and two == 1) or (one == 1 and two == 0):
+            result.append('1')
+        else:
+            return result.append('0')
+
+    return concat(result)
+
+
+# build 16 keys from one binary key
+# return an array of 16 strings
 def build_keys(binary_key):
 
     swapped_key = swap_key(binary_key, "CP_1")
@@ -129,21 +157,52 @@ def split(string, size):
     return splitted_string
 
 
-# Rondes
-def rondes(binary_message):
-    splitted_message = split(binary_message, 64)
+# Paquetage
+def pack(binary_message):
 
-    for i in range(len(splitted_message)):
-        splitted_message[i] = swap_key(splitted_message[i], "PI")
+    return split(binary_message, 64)
 
-    g = splitted_message[0][:32]
-    d = splitted_message[0][32:]
+
+# permutation initiale
+def initial_permutation(packed_message):
+
+    for i in range(len(packed_message)):
+        packed_message[i] = swap_key(packed_message[i], "PI")
+        print("PI[M" + str(i) + "] = " + packed_message[i])
+
+    g = packed_message[0][:32]
+    d = packed_message[0][32:]
 
     d = swap_key(d, "E")
-    print("E(d) :", d)
 
     d = fit_in_matrice(d, 4, 12)
-    for i in range(len(d)):
-        print(d[i])
 
-    return splitted_message
+    return packed_message
+
+
+# Divide the message in two equal parts
+# in case of odd length, the second part gets the extra character
+def gauche_et_droite(message):
+
+    g = message[:int(len(message) / 2)]
+    d = message[int(len(message) / 2):]
+
+    return g, d
+
+
+# Rondes
+def rondes(pi_messages, built_keys):
+
+    for message in pi_messages:
+        g, d = gauche_et_droite(message)
+
+        # 16 rondes
+        #  Expansion of d
+        d = swap_key(d, "E")
+
+        # XOR
+        d = xor(d, built_keys[0])
+
+        # 8 blocs
+        splitted_d = split(str(d), 4)
+        print(splitted_d)
