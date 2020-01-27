@@ -19,11 +19,6 @@ binary_key_file = open("binary_key.txt", "r")
 BINARY_KEY = binary_key_file.read()
 built_keys = const_des.build_keys(BINARY_KEY)
 
-print("Built keys :")
-for i in range(len(built_keys)):
-    print(i + 1, ":", built_keys[i])
-print('\n')
-
 text_file = open("message.txt", "r")
 text = text_file.read()
 BINARY_TEXT = conv.conv_bin(text)
@@ -31,25 +26,13 @@ BINARY_TEXT = conv.conv_bin(text)
 # Paquetage
 message = const_des.pack(BINARY_TEXT)
 
-print("Après paquetage")
-utils.display_dict(message)
-print('\n')
-
 # Permutation initiale
 for i in range(len(message)):
     message["M " + str(i + 1)] = (const_des.swap_key(message["M " + str(i + 1)], "PI"))
 
-print("Après permutation initiale")
-utils.display_dict(message)
-print('\n')
-
 # Gauche droite
 for i in range(len(message)):
     message["M " + str(i + 1)] = const_des.gauche_et_droite(message["M " + str(i + 1)])
-
-print("après gauche droite")
-utils.display_dict(message)
-print('\n')
 
 # rondes
 # Expansion droite
@@ -88,24 +71,14 @@ for a in range(16):
 
         message["M " + str(i + 1)]["gauche"] = ancien_droite
 
-        print("après Permutation des rondes")
-        utils.display_dict(message["M " + str(i + 1)])
-        print('\n')
-
-print("après 16 rondes")
-utils.display_dict(message)
-print('\n')
-
 for i in range(len(message)):
     message["M " + str(i + 1)] = message["M " + str(i + 1)]["gauche"] + message["M " + str(i + 1)]["droite"]
-
-print("après collage")
-utils.display_dict(message)
-print('\n')
 
 for i in range(len(message)):
     message["M " + str(i + 1)] = const_des.swap_key(message["M " + str(i + 1)], "PI_I")
 
-print("après PI_I")
-utils.display_dict(message)
-print('\n')
+crypted_message = ""
+for i in range(len(message)):
+    crypted_message += message["M " + str(i + 1)]
+
+print(crypted_message)
