@@ -92,11 +92,11 @@ def get_const(const_name):
     start = 0
     
     for line in constantes_des_file:
-        if "FIN " + const_name + " =\n" == line:
+        if "FIN " + const_name + "!" in line:
             break
         if start == 1:
             const += line
-        if const_name + " =\n" == line:
+        if const_name + " =" in line:
             start = 1
     
     const = const.split()

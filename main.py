@@ -12,10 +12,11 @@
 
 
 import constantes_des as const_des
+import ConvAlphaBin as conv
 import utils
 
-BINARY_KEY = "0101111001011011010100100111111101010001000110101011110010010001"
-
+binary_key_file = open("binary_key.txt", "r")
+BINARY_KEY = binary_key_file.read()
 built_keys = const_des.build_keys(BINARY_KEY)
 
 print("Built keys :")
@@ -23,8 +24,9 @@ for i in range(len(built_keys)):
     print(i + 1, ":", built_keys[i])
 print('\n')
 
-BINARY_TEXT = "110111001011101111000100110101011110011011110111110000100011001010011101001010110110101111100011001110" \
-              "1011011111"
+text_file = open("message.txt", "r")
+text = text_file.read()
+BINARY_TEXT = conv.conv_bin(text)
 
 # Paquetage
 message = const_des.pack(BINARY_TEXT)
@@ -51,50 +53,59 @@ print('\n')
 
 # rondes
 # Expansion droite
-for i in range(len(message)):
-    message["M " + str(i + 1)]["droite"] = const_des.swap_key(message["M " + str(i + 1)]["droite"], "E")
+for a in range(16):
+    for i in range(len(message)):
 
-print("après expansion droite")
+        # Sauvegarde droite
+        ancien_droite = message["M " + str(i + 1)]["droite"]
+
+        # Expansion droite
+        message["M " + str(i + 1)]["droite"] = const_des.swap_key(message["M " + str(i + 1)]["droite"], "E")
+
+        # xor droite x K1
+        message["M " + str(i + 1)]["droite"] = const_des.xor_string(message["M " + str(i + 1)]["droite"], built_keys[a])
+
+        # split M1 droite en 6
+        message["M " + str(i + 1)]["droite"] = const_des.split(message["M " + str(i + 1)]["droite"], 6)
+
+        # swap S1 à S8
+        for j in range(len(message["M " + str(i + 1)]["droite"])):
+
+            const = const_des.get_const("S" + str(j + 1))
+
+            bin_pos = message["M " + str(i + 1)]["droite"]["M " + str(j + 1)]
+            line = int(bin_pos[0:1] + bin_pos[5:6], 2)
+            column = int(bin_pos[1:5], 2)
+
+            message["M " + str(i + 1)]["droite"]["M " + str(j + 1)] = "{0:04b}".format(int(const[line * 16 + column]))
+
+        message["M " + str(i + 1)]["droite"] = const_des.concat(message["M " + str(i + 1)]["droite"])
+
+        # Permutation des rondes
+        message["M " + str(i + 1)]["droite"] = const_des.swap_key(message["M " + str(i + 1)]["droite"], "PERM")
+
+        message["M " + str(i + 1)]["droite"] = const_des.xor_string(message["M " + str(i + 1)]["droite"], message["M " + str(i + 1)]["gauche"])
+
+        message["M " + str(i + 1)]["gauche"] = ancien_droite
+
+        print("après Permutation des rondes")
+        utils.display_dict(message["M " + str(i + 1)])
+        print('\n')
+
+print("après 16 rondes")
 utils.display_dict(message)
 print('\n')
 
 for i in range(len(message)):
-    message["M " + str(i + 1)]["droite"] = const_des.xor_string(message["M " + str(i + 1)]["droite"], built_keys[0])
+    message["M " + str(i + 1)] = message["M " + str(i + 1)]["gauche"] + message["M " + str(i + 1)]["droite"]
 
-print("après xor droite x K1")
+print("après collage")
 utils.display_dict(message)
 print('\n')
 
 for i in range(len(message)):
-    message["M " + str(i + 1)]["droite"] = const_des.split(message["M " + str(i + 1)]["droite"], 6)
+    message["M " + str(i + 1)] = const_des.swap_key(message["M " + str(i + 1)], "PI_I")
 
-print("après split M1 droite en 6")
-utils.display_dict(message)
-print('\n')
-
-for i in range(len(message)):
-    for j in range(len(message["M " + str(i + 1)]["droite"])):
-
-        const = const_des.get_const("S" + str(j + 1))
-
-        bin_pos = message["M " + str(i + 1)]["droite"]["M " + str(j + 1)]
-        line = int(bin_pos[0:1] + bin_pos[5:6], 2)
-        column = int(bin_pos[1:5], 2)
-
-        message["M " + str(i + 1)]["droite"]["M " + str(j + 1)] = "{0:04b}".format(int(const[line * 16 + column]))
-
-for i in range(len(message)):
-    message["M " + str(i + 1)]["droite"] = const_des.concat(message["M " + str(i + 1)]["droite"])
-
-print("après swap S1 à S8")
-utils.display_dict(message)
-print('\n')
-
-for i in range(len(message)):
-    print(message["M " + str(i + 1)]["droite"])
-    message["M " + str(i + 1)]["droite"] = const_des.swap_key(message["M " + str(i + 1)]["droite"], "P")
-    print(message["M " + str(i + 1)]["droite"])
-
-print("après Permutation des rondes")
+print("après PI_I")
 utils.display_dict(message)
 print('\n')
