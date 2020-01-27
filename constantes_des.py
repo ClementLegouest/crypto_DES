@@ -1,14 +1,14 @@
 ##############################################################################
 #
-# Clément Legouest
+# HADJI Mohamed Allam
+# DINIC Damian
+# LEGOUEST Clément
 #
 # Functions used to crypt and decrypt DES
 #
 # Managed to be used under Python 3.8.0 64 bits
 #
 ##############################################################################
-
-import re
 
 
 # create 2D array filled with zero characters
@@ -50,20 +50,23 @@ def concat(array):
     return result
 
 
-# Le shérif de l'espace
 def xor(one, two):
+    if (one == '0' and two == '1') or (one == '1' and two == '0'):
+        return '1'
+    else:
+        return '0'
+
+
+def xor_string(one, two):
     if len(one) != len(two):
         return -1
 
-    result = []
+    result = ""
 
     for i in range(len(one)):
-        if (one == 0 and two == 1) or (one == 1 and two == 0):
-            result.append('1')
-        else:
-            return result.append('0')
+        result += xor(one[i], two[i])
 
-    return concat(result)
+    return result
 
 
 # build 16 keys from one binary key
@@ -89,11 +92,11 @@ def get_const(const_name):
     start = 0
     
     for line in constantes_des_file:
-        if "FIN " + const_name in line:
+        if "FIN " + const_name + " =\n" == line:
             break
         if start == 1:
             const += line
-        if const_name in line:
+        if const_name + " =\n" == line:
             start = 1
     
     const = const.split()
@@ -145,14 +148,16 @@ def shift(key):
 # The last packet is filled with zeros til it gets the desired size
 def split(string, size):
 
-    splitted_string = []
+    splitted_string = dict()
+    i = 1
 
     while len(string) >= size:
-        splitted_string.append(string[:size])
+        splitted_string["M " + str(i)] = (string[:size])
         string = string[size:]
+        i += 1
 
     if len(string) > 0:
-        splitted_string.append(string + '0' * (size - len(string)))
+        splitted_string["M " + str(i)] = (string + '0' * (size - len(string)))
 
     return splitted_string
 
@@ -163,15 +168,28 @@ def pack(binary_message):
     return split(binary_message, 64)
 
 
+# Divide the message in two equal parts
+# in case of odd length, the second part gets the extra character
+def gauche_et_droite(message):
+
+    gd = dict()
+
+    gauche = message[:int(len(message) / 2)]
+    droite = message[int(len(message) / 2):]
+
+    gd["gauche"] = gauche
+    gd["droite"] = droite
+
+    return gd
+
+
 # permutation initiale
 def initial_permutation(packed_message):
 
     for i in range(len(packed_message)):
         packed_message[i] = swap_key(packed_message[i], "PI")
-        print("PI[M" + str(i) + "] = " + packed_message[i])
 
-    g = packed_message[0][:32]
-    d = packed_message[0][32:]
+    g, d = gauche_et_droite(packed_message)
 
     d = swap_key(d, "E")
 
@@ -180,29 +198,6 @@ def initial_permutation(packed_message):
     return packed_message
 
 
-# Divide the message in two equal parts
-# in case of odd length, the second part gets the extra character
-def gauche_et_droite(message):
-
-    g = message[:int(len(message) / 2)]
-    d = message[int(len(message) / 2):]
-
-    return g, d
-
-
 # Rondes
 def rondes(pi_messages, built_keys):
-
-    for message in pi_messages:
-        g, d = gauche_et_droite(message)
-
-        # 16 rondes
-        #  Expansion of d
-        d = swap_key(d, "E")
-
-        # XOR
-        d = xor(d, built_keys[0])
-
-        # 8 blocs
-        splitted_d = split(str(d), 4)
-        print(splitted_d)
+    return 1

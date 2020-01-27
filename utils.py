@@ -2,7 +2,7 @@
 #
 # Clément Legouest
 #
-# Functions used to crypt and decrypt DES
+# Utility functions
 #
 # Managed to be used under Python 3.8.0 64 bits
 #
