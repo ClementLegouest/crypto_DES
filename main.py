@@ -12,8 +12,9 @@
 
 
 import constantes_des as const_des
-import ConvAlphaBin as conv
+import conv_alpha_bin as conv
 import utils
+
 
 binary_key_file = open("binary_key.txt", "r")
 BINARY_KEY = binary_key_file.read()
@@ -82,3 +83,4 @@ for i in range(len(message)):
     crypted_message += message["M " + str(i + 1)]
 
 print(crypted_message)
+print(conv.nib_vnoc(crypted_message))

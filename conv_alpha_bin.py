@@ -91,12 +91,3 @@ def nib_vnoc(txt):
                     break
 
     return res
-
-
-# Test
-txt0 = "Je teste au stérone!"
-txt1 = conv_bin(txt0)
-txt2 = nib_vnoc(txt1)
-print("txt0 : ", txt0)
-print("txt1 : ", txt1)
-print("txt2 : ", txt2)
