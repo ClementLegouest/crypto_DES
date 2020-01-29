@@ -10,6 +10,7 @@
 #
 ##############################################################################
 
+CONST_FILE = "./ConstantesDES.txt"
 
 # create 2D array filled with zero characters
 # x lines of y
@@ -83,10 +84,7 @@ def build_keys(binary_key):
 # Return -1 if DES constant name does not exist
 def get_const(const_name):
 
-    project_root = "E:/Developpement/ESGI4-Cryptographie/DES_project/"
-    constants_file = "ConstantesDES.txt"
-
-    constantes_des_file = open(project_root + constants_file)
+    constantes_des_file = open(CONST_FILE)
 
     const = ""
     start = 0
